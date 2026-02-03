@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Timer mit Sound</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #111;
+    color: #fff;
+    text-align: center;
+    margin-top: 40px;
+  }
+  input, button {
+    font-size: 18px;
+    padding: 8px;
+    margin: 5px;
+    width: 100px;
+  }
+  button {
+    cursor: pointer;
+  }
+  #countdown {
+    font-size: 48px;
+    margin-top: 30px;
+    color: #00ff88;
+  }
+</style>
+</head>
+<body>
+
+<h1>⏰ Timer</h1>
+
+<input type="number" id="hours" min="0" value="0" placeholder="Stunden">
+<input type="number" id="minutes" min="0" value="0" placeholder="Minuten">
+<input type="number" id="seconds" min="0" value="0" placeholder="Sekunden">
+<br>
+<button onclick="startTimer()">Start</button>
+
+<div id="countdown">00:00:00</div>
+
+<script>
+let timerInterval;
+let endTime;
+
+// 🔊 Sound mit Web Audio API
+function playSound() {
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  const oscillator = audioCtx.createOscillator();
+  const gainNode = audioCtx.createGain();
+
+  oscillator.type = "sine";
+  oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); // Tonhöhe
+  gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+
+  oscillator.connect(gainNode);
+  gainNode.connect(audioCtx.destination);
+
+  oscillator.start();
+  setTimeout(() => {
+    oscillator.stop();
+    audioCtx.close();
+  }, 2000); // 2 Sekunden Sound
+}
+
+function startTimer() {
+  clearInterval(timerInterval);
+
+  const h = parseInt(document.getElementById("hours").value) || 0;
+  const m = parseInt(document.getElementById("minutes").value) || 0;
+  const s = parseInt(document.getElementById("seconds").value) || 0;
+
+  const totalMs = (h * 3600 + m * 60 + s) * 1000;
+
+  if (totalMs <= 0) {
+    alert("⛔ Bitte Zeit eingeben!");
+    return;
+  }
+
+  endTime = Date.now() + totalMs;
+
+  function update() {
+    const remaining = endTime - Date.now();
+
+    if (remaining <= 0) {
+      clearInterval(timerInterval);
+      document.getElementById("countdown").textContent = "00:00:00";
+      playSound();
+      return;
+    }
+
+    const totalSeconds = Math.floor(remaining / 1000);
+    const hh = Math.floor(totalSeconds / 3600);
+    const mm = Math.floor((totalSeconds % 3600) / 60);
+    const ss = totalSeconds % 60;
+
+    document.getElementById("countdown").textContent =
+      `${hh.toString().padStart(2,"0")}:${mm.toString().padStart(2,"0")}:${ss.toString().padStart(2,"0")}`;
+  }
+
+  update();
+  timerInterval = setInterval(update, 1000);
+}
+</script>
+
+</body>
+</html>

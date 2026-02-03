@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Maths – School Way</title>
+
+<style>
+  body {
+    text-align: center;
+    background-color: #000080;
+    font-family: Arial, sans-serif;
+    color: white;
+    padding: 20px;
+  }
+
+  h1 {
+    margin-bottom: 10px;
+  }
+
+  .task {
+    font-size: 28px;
+    margin: 20px 0;
+  }
+
+  input {
+    font-size: 20px;
+    padding: 10px;
+    width: 150px;
+    text-align: center;
+    border-radius: 10px;
+    border: none;
+  }
+
+  .feedback {
+    margin-top: 15px;
+    font-size: 20px;
+    height: 24px;
+  }
+
+  .score {
+    margin-top: 10px;
+    font-size: 18px;
+  }
+
+  #restart {
+    margin-top: 20px;
+    background-color: #800080;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    font-size: 18px;
+    border-radius: 25px;
+    cursor: pointer;
+    display: none;
+  }
+
+  #restart:hover {
+    background-color: #FFD700;
+    color: black;
+  }
+      .m{
+      background-color: #800080;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    font-size: 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    margin-top: 10px;
+    }
+    .m:hover{
+    background-color: #FFD700; 
+  }
+      .c{
+    background-color: #800080;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    font-size: 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+  .c:hover{
+    background-color: #FFD700; 
+  }
+</style>
+</head>
+
+<body>
+
+<h1>Maths – School Way</h1>
+
+<div class="task" id="task"></div>
+
+<input type="number" id="answer" placeholder="Your answer">
+
+<div class="feedback" id="feedback"></div>
+<div class="score" id="score">Score: 0/0</div>
+
+<button id="restart">🔁 Repeat</button>
+
+<a href="maths.html">
+  <button class="m">Back to Maths</button>
+  </a>
+    <a href="learn.html">
+  <button class="c">Back to Learnpage</button>
+  </a>
+
+<script>
+  const tasks = [
+    { question: "2 + 3", answer: 5 },
+    { question: "7 - 4", answer: 3 },
+    { question: "5 × 2", answer: 10 },
+    { question: "10 ÷ 2", answer: 5 },
+    { question: "9 + 6", answer: 15 },
+    { question: "8 - 3", answer: 5 },
+    { question: "4 × 3", answer: 12 },
+    { question: "12 ÷ 4", answer: 3 },
+    { question: "6 + 7", answer: 13 },
+    { question: "10 - 1", answer: 9 }
+  ];
+
+  let currentTask = 0;
+  let points = 0;
+  let answered = 0;
+
+  const taskDiv = document.getElementById("task");
+  const input = document.getElementById("answer");
+  const feedback = document.getElementById("feedback");
+  const scoreDiv = document.getElementById("score");
+  const restartBtn = document.getElementById("restart");
+
+  function showTask() {
+    taskDiv.textContent = tasks[currentTask].question;
+    input.focus();
+  }
+
+  showTask();
+
+  input.addEventListener("keydown", function (event) {
+    if (event.key === "Enter") {
+      const userAnswer = Number(input.value);
+      const correctAnswer = tasks[currentTask].answer;
+
+      if (userAnswer === correctAnswer) {
+        feedback.textContent = "✅ Correct!";
+        feedback.style.color = "lime";
+        points++;
+      } else {
+        feedback.textContent = "❌ Wrong!";
+        feedback.style.color = "red";
+      }
+
+      answered++;
+      scoreDiv.textContent = "Score: " + points + "/" + answered;
+      input.value = "";
+
+      setTimeout(() => {
+        feedback.textContent = "";
+        currentTask++;
+
+        if (currentTask < tasks.length) {
+          showTask();
+        } else {
+          taskDiv.textContent = "🎉 Finished! Final score: " + points + "/" + answered;
+          input.disabled = true;
+          restartBtn.style.display = "inline-block";
+        }
+      }, 800);
+    }
+  });
+
+  restartBtn.addEventListener("click", function () {
+    currentTask = 0;
+    points = 0;
+    answered = 0;
+
+    scoreDiv.textContent = "Score: 0/0";
+    feedback.textContent = "";
+    input.disabled = false;
+    restartBtn.style.display = "none";
+
+    showTask();
+  });
+</script>
+
+</body>
+</html>

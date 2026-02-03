@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Math Labyrinth Game</title>
+<style>
+  body {
+    text-align: center;
+    background-color: #000080;
+    font-family: Arial, sans-serif;
+    color: white;
+    padding: 20px;
+  }
+
+  #maze {
+    display: grid;
+    grid-template-columns: repeat(5, 50px);
+    grid-template-rows: repeat(5, 50px);
+    gap: 2px;
+    margin: 20px auto;
+    width: max-content;
+    position: relative;
+  }
+
+  .cell {
+    width: 50px;
+    height: 50px;
+    background-color: #1a1a99;
+    border: 1px solid #000;
+    position: relative;
+  }
+
+  .wall {
+    background-color: #333;
+  }
+
+  .goal {
+    background-color: gold;
+  }
+
+  .player {
+    width: 40px;
+    height: 40px;
+    background-color: red;
+    border-radius: 50%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transition: all 0.3s ease;
+  }
+
+  #task {
+    margin-top: 20px;
+    font-size: 20px;
+  }
+
+  #answer {
+    font-size: 18px;
+    padding: 5px;
+    width: 80px;
+    text-align: center;
+  }
+
+  #feedback {
+    margin-top: 10px;
+    height: 24px;
+    font-size: 18px;
+  }
+
+  #score {
+    margin-top: 10px;
+    font-size: 18px;
+  }
+        .m{
+      background-color: #800080;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    font-size: 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    margin-top: 10px;
+    }
+    .m:hover{
+    background-color: #FFD700; 
+  }
+    .c{
+    background-color: #800080;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    font-size: 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+  .c:hover{
+    background-color: #FFD700; 
+  }
+</style>
+</head>
+<body>
+
+<h1>Math-Gameway</h1>
+
+<div id="maze"></div>
+
+<div id="task"></div>
+<input type="number" id="answer" placeholder="Answer">
+<div id="feedback"></div>
+<div id="score">Score: 0</div>
+  <a href="maths.html">
+  <button class="m">Back to Maths</button>
+  </a>
+  <a href="learn.html">
+  <button class="c">Back to Learnpage</button>
+  </a>
+
+<script>
+  const mazeMap = [
+    [0,0,1,0,0],
+    [1,0,1,0,1],
+    [0,0,0,0,0],
+    [0,1,1,0,1],
+    [0,0,0,0,0]
+  ];
+
+  const mazeDiv = document.getElementById("maze");
+  const taskDiv = document.getElementById("task");
+  const input = document.getElementById("answer");
+  const feedback = document.getElementById("feedback");
+  const scoreDiv = document.getElementById("score");
+
+  const path = [
+    {x:0,y:0},{x:1,y:0},{x:1,y:1},{x:1,y:2},{x:2,y:2},
+    {x:3,y:2},{x:3,y:3},{x:3,y:4},{x:4,y:4} // Ziel
+  ];
+
+  let playerStep = 0;
+  let score = 0;
+
+  // Original Aufgaben
+  const originalTasks = [
+    {question: "2 + 3", answer: 5},
+    {question: "7 - 4", answer: 3},
+    {question: "5 × 2", answer: 10},
+    {question: "10 ÷ 2", answer: 5},
+    {question: "9 + 6", answer: 15},
+    {question: "17+29", answer: 46},
+    {question: "5*3", answer: 15},
+    {question: "6 + 7", answer: 13}
+  ];
+
+  // Aktive Aufgaben: kopie von originalTasks
+  let activeTasks = [...originalTasks];
+  let currentIndex = 0;
+
+  // Labyrinth erstellen
+  const cells = [];
+  for(let y=0; y<5; y++){
+    for(let x=0; x<5; x++){
+      const cell = document.createElement("div");
+      cell.classList.add("cell");
+      if(mazeMap[y][x]===1) cell.classList.add("wall");
+      if(x===4 && y===4) cell.classList.add("goal"); // Ziel
+      mazeDiv.appendChild(cell);
+      cells.push(cell);
+    }
+  }
+
+  const player = document.createElement("div");
+  player.classList.add("player");
+  mazeDiv.appendChild(player);
+
+  function updatePlayer(){
+    const pos = path[playerStep];
+    player.style.left = (pos.x*52 + 5) + "px";
+    player.style.top  = (pos.y*52 + 5) + "px";
+  }
+
+  function showTask(){
+    if(activeTasks.length===0){
+      taskDiv.textContent = "🎉 All tasks correct! Victory!";
+      input.disabled = true;
+      feedback.textContent = "";
+      return;
+    }
+    taskDiv.textContent = activeTasks[currentIndex].question;
+    input.value = "";
+    input.focus();
+  }
+
+  showTask();
+  updatePlayer();
+
+  input.addEventListener("keydown", function(e){
+    if(e.key==="Enter" && input.value!==""){
+      const userAnswer = Number(input.value);
+      const task = activeTasks[currentIndex];
+
+      if(userAnswer === task.answer){
+        feedback.textContent = "✅ Correct!";
+        feedback.style.color = "lime";
+        score++;
+        if(playerStep < path.length-1) playerStep++;
+        // Aufgabe entfernen aus activeTasks
+        activeTasks.splice(currentIndex,1);
+      } else {
+        feedback.textContent = "❌ Wrong!";
+        feedback.style.color = "red";
+        if(playerStep > 0) playerStep--;
+        // Aufgabe bleibt, geht ans Ende
+        activeTasks.push(task);
+        activeTasks.splice(currentIndex,1);
+      }
+
+      scoreDiv.textContent = "Score: "+score;
+      updatePlayer();
+
+      // nächste Aufgabe
+      if(activeTasks.length>0){
+        currentIndex = currentIndex % activeTasks.length;
+        showTask();
+      } else {
+        taskDiv.textContent = "🎉 Victory!";
+        input.disabled = true;
+        feedback.textContent = "";
+      }
+    }
+  });
+</script>
+
+</body>
+</html>
